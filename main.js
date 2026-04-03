@@ -723,6 +723,12 @@ function prepareGearModel(root) {
     });
   });
 
+  // Коррекция оси: Blender экспортирует модель лёжа (ось Z вверх),
+  // а Three.js использует ось Y вверх — поворачиваем на -90° по X.
+  if (!root.userData.isFallback) {
+    root.rotation.x = -Math.PI / 2;
+  }
+
   placeModelOnStudioFloor(root);
 }
 
