@@ -29,11 +29,11 @@ const colorValueLabel = document.getElementById("color-value");
 
 // Блок 4: Константы путей моделей.
 const MODEL_PATHS = {
-  long: "models/rashguard.glb",      // приоритет: основной файл продукта
-  short: "models/rashguard_short.glb"
+  long: "models/rashguard.glb",      // единственный файл модели — используем для обоих вариантов
+  short: "models/rashguard.glb"
 };
 const MODEL_FALLBACK_PATHS = {
-  long: "models/rashguard_long.glb", // запасной путь, если rashguard.glb не найден
+  long: null,
   short: null
 };
 const MANNEQUIN_PATH = "models/human.glb";
