@@ -1,0 +1,176 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RST61 — профессиональный 3D-конфигуратор экипировки">
+  <title>RST61 | 3D Configurator</title>
+
+  <!-- Брендинг: favicon RST61 в браузерной вкладке -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <!-- Import Map для корректного разрешения модуля 'three' -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand-wrap">
+      <img src="assets/logo.png" alt="Логотип RST61" class="brand-logo">
+      <div class="brand-text">
+        <span class="brand-name">RST61</span>
+        <span class="brand-slogan">ARMOR ENGINEERED IN ROSTOV</span>
+      </div>
+    </div>
+
+    <nav class="site-nav" aria-label="Навигация по разделам RST61">
+      <button class="nav-btn active" data-target="page-home" type="button">ГЛАВНАЯ</button>
+      <button class="nav-btn" data-target="page-config" type="button">КОНСТРУКТОР</button>
+      <button class="nav-btn" data-target="page-gallery" type="button">ГАЛЕРЕЯ</button>
+      <button class="nav-btn" data-target="page-contacts" type="button">КОНТАКТЫ</button>
+    </nav>
+  </header>
+
+  <main class="site-main">
+    <section class="site-page active" id="page-home">
+      <section class="home-hero">
+        <div class="hero-watermark" aria-hidden="true">RST61</div>
+        <div class="page-inner home-inner">
+          <p class="home-kicker">RST61 • РОСТОВ-НА-ДОНУ</p>
+          <h1 class="home-title">ТВОЯ БРОНЯ — ТВОЙ ХАРАКТЕР</h1>
+          <p class="home-subtitle reveal">Профессиональная кастомизация экипировки для боя. Точное управление цветом и посадкой в 3D.</p>
+          <button class="cta-btn reveal" data-target-page="page-config" type="button">ПЕРЕЙТИ В КОНСТРУКТОР</button>
+        </div>
+      </section>
+
+      <section class="home-values">
+        <div class="page-inner">
+          <p class="home-values-text reveal">МЫ НЕ ШЬЕМ ОДЕЖДУ. МЫ СОЗДАЕМ ТВОЮ ВТОРУЮ КОЖУ.</p>
+        </div>
+      </section>
+
+      <section class="home-features">
+        <div class="page-inner">
+          <h2>ТЕХНОЛОГИИ RST61</h2>
+          <div class="home-features-grid">
+            <article class="home-feature-card reveal">
+              <h3>ВЫСОКОТЕХНОЛОГИЧНАЯ ТКАНЬ</h3>
+              <p>Итальянский бифлекс премиум-класса для интенсивных тренировок и боев.</p>
+            </article>
+            <article class="home-feature-card reveal">
+              <h3>НЕУБИВАЕМЫЕ ШВЫ</h3>
+              <p>Плоские швы Flatlock держат нагрузку, когда обычный экип уже сдается.</p>
+            </article>
+            <article class="home-feature-card reveal">
+              <h3>ПОЛНАЯ СУБЛИМАЦИЯ</h3>
+              <p>Детализированная печать без утолщений ткани и без выцветания в работе.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="home-final-cta">
+        <div class="page-inner">
+          <button class="cta-btn reveal" data-target-page="page-config" type="button">СТАНЬ ДИЗАЙНЕРОМ СВОЕЙ ПОБЕДЫ</button>
+        </div>
+      </section>
+    </section>
+
+    <section class="site-page" id="page-config">
+      <div class="config-layout">
+        <div class="config-viewer">
+          <div id="canvas-container" aria-label="3D сцена конфигуратора RST61">
+            <div class="loading-overlay" id="loading-overlay" aria-live="polite">
+              <div class="loading-spinner"></div>
+              <p data-loading-text>ЗАГРУЗКА 3D СЦЕНЫ...</p>
+            </div>
+          </div>
+        </div>
+
+        <aside class="controls-panel">
+          <h2>ПАНЕЛЬ КОНФИГУРАЦИИ</h2>
+          <p class="control-note">ЛКМ — вращение, ПКМ — панорамирование, колесо — зум.</p>
+
+          <section class="control-group">
+            <h3>МОДЕЛЬ РАШГАРДА</h3>
+            <div class="control-grid control-grid--2">
+              <button class="model-btn active" data-model="long" type="button">ДЛИННЫЙ РУКАВ</button>
+              <button class="model-btn" data-model="short" type="button">КОРОТКИЙ РУКАВ</button>
+            </div>
+          </section>
+
+          <section class="control-group">
+            <h3>РЕЖИМ ПРОСМОТРА</h3>
+            <div class="control-grid control-grid--2">
+              <button class="view-btn active" data-view="gear" type="button">ТОЛЬКО ЭКИП</button>
+              <button class="view-btn" data-view="human" type="button">НА МАНЕКЕНЕ</button>
+            </div>
+          </section>
+
+          <section class="control-group">
+            <h3>ОКРАШИВАЕМАЯ ЗОНА</h3>
+            <div class="control-grid control-grid--3">
+              <button class="part-btn active" data-part="torso" type="button">ТОРС</button>
+              <button class="part-btn" data-part="sleeves" type="button">РУКАВА</button>
+              <button class="part-btn" data-part="collar" type="button">ВОРОТНИК</button>
+            </div>
+          </section>
+
+          <section class="control-group">
+            <h3>ЦВЕТОВОЕ КОЛЕСО</h3>
+            <div id="color-wheel" class="color-wheel-wrap" aria-label="Палитра iro.js"></div>
+            <p class="color-readout">ВЫБРАН ЦВЕТ: <span id="color-value">#FF4500</span></p>
+          </section>
+
+          <section class="control-group">
+            <h3>ВРАЩЕНИЕ МОДЕЛИ</h3>
+            <div class="control-grid control-grid--2">
+              <button class="rotation-btn" id="btn-rotate-start" type="button">ПУСК</button>
+              <button class="rotation-btn active" id="btn-rotate-stop" type="button">СТОП</button>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <section class="site-page" id="page-gallery">
+      <div class="page-inner">
+        <h2>ГАЛЕРЕЯ RST61</h2>
+        <p class="page-lead">ОТ ЭСКИЗА ДО БОЕВОГО КОМПЛЕКТА</p>
+        <div class="gallery-grid">
+          <article class="gallery-card"><h3>ПРО СЕРИЯ</h3></article>
+          <article class="gallery-card"><h3>РОСТОВ КРОЙ</h3></article>
+          <article class="gallery-card"><h3>ДНК КАСТОМА</h3></article>
+          <article class="gallery-card"><h3>ТЕСТ НА РИНГЕ</h3></article>
+          <article class="gallery-card"><h3>ЭЛИТНЫЙ ДРОП</h3></article>
+          <article class="gallery-card"><h3>ИЗДАНИЕ 61</h3></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="site-page" id="page-contacts">
+      <div class="page-inner contacts-inner">
+        <h2>КОНТАКТЫ RST61</h2>
+        <p>РОСТОВ-НА-ДОНУ, РЕГИОН 61</p>
+        <p><a href="tel:+79094311409">+7 909 431 1409</a></p>
+        <p><a href="tel:+79518281540">+7 951 828 1540</a></p>
+        <p><a href="mailto:armor@rst61.ru">armor@rst61.ru</a></p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Подключение библиотеки iro.js для профессионального Color Wheel -->
+  <script src="https://cdn.jsdelivr.net/npm/@irojs/iro@5"></script>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
