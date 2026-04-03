@@ -298,9 +298,7 @@ a {
 
 #page-config {
   overflow: hidden;
-  background:
-    radial-gradient(circle at 82% 12%, rgba(255, 69, 0, 0.08), transparent 36%),
-    linear-gradient(180deg, #080808, #050505);
+  background: #F2F2F7;
 }
 
 .config-layout {
@@ -320,7 +318,7 @@ a {
   position: relative;
   width: 100%;
   height: calc(100vh - var(--header-h));
-  background: linear-gradient(180deg, #1c1c1c 0%, #0d0d0d 45%, #060606 100%);
+  background: #F2F2F7;
 }
 
 #canvas-container canvas {
@@ -338,7 +336,7 @@ a {
   align-items: center;
   justify-content: center;
   gap: 0.9rem;
-  background: rgba(5, 5, 5, 0.62);
+  background: rgba(242, 242, 247, 0.75);
   backdrop-filter: blur(2px);
   opacity: 0;
   pointer-events: none;
@@ -353,7 +351,7 @@ a {
 .loading-spinner {
   width: 42px;
   height: 42px;
-  border: 3px solid rgba(255, 255, 255, 0.22);
+  border: 3px solid rgba(0, 0, 0, 0.15);
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
@@ -365,6 +363,7 @@ a {
   letter-spacing: 0.11em;
   text-transform: uppercase;
   font-weight: 800;
+  color: #333;
 }
 
 @keyframes spin {
@@ -631,6 +630,25 @@ a {
 .contacts-inner a:focus-visible {
   color: var(--accent);
   border-color: var(--accent);
+}
+
+.pricing-group {
+  text-align: center;
+}
+
+.price-value {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+.price-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 @media (max-width: 1100px) {

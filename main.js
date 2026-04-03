@@ -49,8 +49,7 @@ let autoRotateEnabled = false;
 // Такой подход позволяет независимо красить торс/рукава/воротник и сохранять выбор при переключении зон.
 const partColorState = {
   torso: "#FF4500",
-  sleeves: "#FF4500",
-  collar: "#FF4500"
+  sleeves: "#FF4500"
 };
 
 // Блок 7: Core-объекты Three.js.
@@ -71,8 +70,7 @@ const gltfLoader = new GLTFLoader();
 // Здесь храним ссылки на материалы, чтобы красить только выбранную часть без тяжелых проходов каждый кадр.
 const partMaterials = {
   torso: new Set(),
-  sleeves: new Set(),
-  collar: new Set()
+  sleeves: new Set()
 };
 const allMaterials = new Set();
 
@@ -226,7 +224,7 @@ function initThreeScene() {
   setupStudioLighting();
   createStudioFloor();
   setupEnvironmentMap();
-  console.log("Studio Environment Initialized");
+  console.log("Студийное окружение инициализировано");
 }
 
 // Блок 15: Apple-store студийное освещение — равномерное, мягкое, без резких теней.
@@ -440,7 +438,6 @@ function disposeObject(root) {
 function clearPartMaterialMaps() {
   partMaterials.torso.clear();
   partMaterials.sleeves.clear();
-  partMaterials.collar.clear();
   allMaterials.clear();
 }
 
@@ -592,9 +589,6 @@ function collectPartMaterials(root) {
         partMaterials.sleeves.add(material);
       }
 
-      if (meshName.includes("collar") || meshName.includes("neck") || meshName.includes("col")) {
-        partMaterials.collar.add(material);
-      }
     });
   });
 
@@ -605,9 +599,6 @@ function collectPartMaterials(root) {
     }
     if (partMaterials.sleeves.size === 0) {
       allMaterials.forEach((material) => partMaterials.sleeves.add(material));
-    }
-    if (partMaterials.collar.size === 0) {
-      allMaterials.forEach((material) => partMaterials.collar.add(material));
     }
   }
 }
@@ -627,13 +618,37 @@ function applyColorToPart(partName, hex) {
 function applyAllPartColors() {
   applyColorToPart("torso", partColorState.torso);
   applyColorToPart("sleeves", partColorState.sleeves);
-  applyColorToPart("collar", partColorState.collar);
+}
+
+// Блок 30.1: Динамическое ценообразование.
+// Базовая цена рашгарда: 4500₽. Каждое изменение цвета зоны от дефолта добавляет наценку.
+const BASE_PRICE = 4500;
+const COLOR_CHANGE_INCREMENT = 500;
+const DEFAULT_PART_COLOR = "#FF4500";
+const priceValueElement = document.getElementById("price-value");
+
+function calculatePrice() {
+  let price = BASE_PRICE;
+  for (const part in partColorState) {
+    if (partColorState[part] !== DEFAULT_PART_COLOR) {
+      price += COLOR_CHANGE_INCREMENT;
+    }
+  }
+  return price;
+}
+
+function updatePriceDisplay() {
+  if (!priceValueElement) return;
+  const price = calculatePrice();
+  // Форматируем число с пробелами: 4 500 ₽
+  priceValueElement.textContent = price.toLocaleString("ru-RU") + " ₽";
 }
 
 function changeColor(hex) {
   partColorState[currentPart] = hex.toUpperCase();
   applyColorToPart(currentPart, partColorState[currentPart]);
   updateColorLabel(partColorState[currentPart]);
+  updatePriceDisplay();
 }
 
 // Блок 31: Управление прозрачностью экипа в режиме "На манекене".
@@ -658,11 +673,9 @@ function createRashguardFallback(modelType) {
 
   const torsoMaterial  = new THREE.MeshStandardMaterial({ color: partColorState.torso });
   const sleevesMaterial = new THREE.MeshStandardMaterial({ color: partColorState.sleeves });
-  const collarMaterial  = new THREE.MeshStandardMaterial({ color: partColorState.collar });
 
   applyFabricMaterialLook(torsoMaterial);
   applyFabricMaterialLook(sleevesMaterial);
-  applyFabricMaterialLook(collarMaterial);
 
   // Торс: вертикальная капсула, приплюснута по Z для пропорций тела.
   const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.34, 0.82, 8, 24), torsoMaterial);
@@ -684,12 +697,7 @@ function createRashguardFallback(modelType) {
   sleeveRight.rotation.z = Math.PI / 2;
   sleeveRight.position.set(armOffsetX + armLength * 0.5, 1.22, 0);
 
-  // Воротник: короткая толстая капсула — имитирует горловину рашгарда.
-  const collar = new THREE.Mesh(new THREE.CapsuleGeometry(0.18, 0.08, 6, 16), collarMaterial);
-  collar.name = "mesh_collar";
-  collar.position.set(0, 1.83, 0);
-
-  group.add(torso, sleeveLeft, sleeveRight, collar);
+  group.add(torso, sleeveLeft, sleeveRight);
   group.userData.isFallback = true;
 
   return group;
@@ -740,20 +748,20 @@ async function loadGearModel(modelType) {
 
   try {
     const gltf = await loadGLTF(modelPath);
-    console.log("Model Load Success:", modelPath);
+    console.log("Модель загружена:", modelPath);
     nextRoot = gltf.scene;
   } catch {
     if (fallbackPath) {
       try {
         const gltf = await loadGLTF(fallbackPath);
-        console.log("Model Load Success (fallback):", fallbackPath);
+        console.log("Модель загружена (запасной путь):", fallbackPath);
         nextRoot = gltf.scene;
       } catch (err) {
-        console.error("Model Load Error:", fallbackPath, err);
+        console.error("Ошибка загрузки модели:", fallbackPath, err);
         nextRoot = createRashguardFallback(modelType);
       }
     } else {
-      console.warn("Model not found, using procedural fallback:", modelPath);
+      console.warn("Модель не найдена, используем процедурную геометрию:", modelPath);
       nextRoot = createRashguardFallback(modelType);
     }
   }
@@ -850,12 +858,12 @@ async function ensureMannequinLoaded() {
     let loadedRoot;
 
     try {
-      console.log("Loading mannequin...");
+      console.log("Загрузка манекена...");
       const gltf = await loadGLTF(MANNEQUIN_PATH);
-      console.log("Model Load Success:", MANNEQUIN_PATH);
+      console.log("Манекен загружен:", MANNEQUIN_PATH);
       loadedRoot = gltf.scene;
     } catch (error) {
-      console.error("Model Load Error:", MANNEQUIN_PATH, error);
+      console.error("Ошибка загрузки манекена:", MANNEQUIN_PATH, error);
       loadedRoot = createMannequinFallback();
     }
 
@@ -993,6 +1001,7 @@ function initApp() {
   setActiveByData(partButtons, "part", currentPart);
   syncPickerToCurrentPart();
   toggleAutoRotate(false);
+  updatePriceDisplay();
 
   activatePage("page-home");
   loadGearModel(currentModelType);
