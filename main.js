@@ -200,7 +200,7 @@ function initThreeScene() {
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.dampingFactor = 0.07;
+  controls.dampingFactor = 0.1;
   controls.enableZoom = true;
   controls.enableRotate = true;
   controls.enablePan = true;
@@ -208,9 +208,9 @@ function initThreeScene() {
   controls.autoRotateSpeed = 0.5;
   controls.minPolarAngle = Math.PI * 0.05;
   controls.maxPolarAngle = Math.PI * 0.82;
-  controls.zoomSpeed = 0.4;       // Плавный зум — по умолчанию 1.0
-  controls.minDistance = 1.0;
-  controls.maxDistance = 6.0;
+  controls.zoomSpeed = 0.3;       // Плавный зум — по умолчанию 1.0
+  controls.minDistance = 1.5;
+  controls.maxDistance = 5.0;
   controls.target.copy(cameraDefaults.target);
 
   // Явно задаем поведение мыши:
@@ -566,8 +566,8 @@ function fitCameraToGear() {
 
   camera.position.set(center.x + distance * 0.45, center.y + maxDim * 0.3, center.z + distance);
   controls.target.set(center.x, center.y + maxDim * 0.1, center.z);
-  controls.minDistance = 1.0;
-  controls.maxDistance = 6.0;
+  controls.minDistance = 1.5;
+  controls.maxDistance = 5.0;
   controls.update();
 }
 
@@ -741,8 +741,9 @@ function prepareGearModel(root) {
   // а Three.js использует ось Y вверх — поворачиваем на -90° по X.
   if (!root.userData.isFallback) {
     root.rotation.x = -Math.PI / 2;
-    // Поворот на 180° по Y, чтобы грудь смотрела на камеру
-    root.rotation.y = Math.PI;
+    // Поворот на 90° по Y, чтобы грудь смотрела на камеру
+    root.rotation.y = Math.PI / 2;
+    console.log("Rotation applied: x=", root.rotation.x, "y=", root.rotation.y);
   }
 
   placeModelOnStudioFloor(root);
