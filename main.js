@@ -1,6 +1,7 @@
 ﻿import * as THREE from "three";
 import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+import { DRACOLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/DRACOLoader.js";
 import { RoomEnvironment } from "https://unpkg.com/three@0.160.0/examples/jsm/environments/RoomEnvironment.js";
 
 // Блок 1: Включаем современный цветовой менеджмент Three.js для более реалистичной передачи оттенков.
@@ -48,8 +49,8 @@ let autoRotateEnabled = false;
 // Блок 6: Хранилище выбранных цветов по зонам.
 // Такой подход позволяет независимо красить торс/рукава/воротник и сохранять выбор при переключении зон.
 const partColorState = {
-  torso: "#FF4500",
-  sleeves: "#FF4500"
+  torso: "#111111",
+  sleeves: "#111111"
 };
 
 // Блок 7: Core-объекты Three.js.
@@ -64,7 +65,11 @@ let colorPicker = null;
 let gearLoadToken = 0;
 
 // Блок 8: Лоадеры.
+const dracoLoader = new DRACOLoader();
+// Путь к декодеру Draco — нужен для распаковки GLB-файлов, сжатых с Draco-компрессией в Blender.
+dracoLoader.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.6/");
 const gltfLoader = new GLTFLoader();
+gltfLoader.setDRACOLoader(dracoLoader);
 
 // Блок 9: Коллекции материалов по логическим частям изделия.
 // Здесь храним ссылки на материалы, чтобы красить только выбранную часть без тяжелых проходов каждый кадр.
@@ -203,8 +208,9 @@ function initThreeScene() {
   controls.autoRotateSpeed = 0.5;
   controls.minPolarAngle = Math.PI * 0.05;
   controls.maxPolarAngle = Math.PI * 0.82;
-  controls.minDistance = 0.8;
-  controls.maxDistance = 6;
+  controls.zoomSpeed = 0.4;       // Плавный зум — по умолчанию 1.0
+  controls.minDistance = 1.0;
+  controls.maxDistance = 6.0;
   controls.target.copy(cameraDefaults.target);
 
   // Явно задаем поведение мыши:
@@ -400,7 +406,7 @@ function updateColorWheelSize() {
 }
 
 function syncPickerToCurrentPart() {
-  const hex = partColorState[currentPart] || "#FF4500";
+  const hex = partColorState[currentPart] || "#111111";
   updateColorLabel(hex);
 
   if (!colorPicker) return;
@@ -560,8 +566,8 @@ function fitCameraToGear() {
 
   camera.position.set(center.x + distance * 0.45, center.y + maxDim * 0.3, center.z + distance);
   controls.target.set(center.x, center.y + maxDim * 0.1, center.z);
-  controls.minDistance = Math.max(0.6, maxDim * 0.5);
-  controls.maxDistance = Math.max(4, maxDim * 4.5);
+  controls.minDistance = 1.0;
+  controls.maxDistance = 6.0;
   controls.update();
 }
 
@@ -632,7 +638,7 @@ function applyAllPartColors() {
 // Базовая цена рашгарда: 4500₽. Каждое изменение цвета зоны от дефолта добавляет наценку.
 const BASE_PRICE = 4500;
 const COLOR_CHANGE_INCREMENT = 500;
-const DEFAULT_PART_COLOR = "#FF4500";
+const DEFAULT_PART_COLOR = "#111111";
 const priceValueElement = document.getElementById("price-value");
 
 function calculatePrice() {
@@ -735,6 +741,8 @@ function prepareGearModel(root) {
   // а Three.js использует ось Y вверх — поворачиваем на -90° по X.
   if (!root.userData.isFallback) {
     root.rotation.x = -Math.PI / 2;
+    // Поворот на 180° по Y, чтобы грудь смотрела на камеру
+    root.rotation.y = Math.PI;
   }
 
   placeModelOnStudioFloor(root);
@@ -761,10 +769,12 @@ async function loadGearModel(modelType) {
   const fallbackPath = MODEL_FALLBACK_PATHS[modelType];
 
   try {
+    console.log("RST61 DEBUG: Attempting to load model from path:", modelPath);
     const gltf = await loadGLTF(modelPath);
     console.log("Модель загружена:", modelPath);
     nextRoot = gltf.scene;
-  } catch {
+  } catch (error) {
+    console.error("RST61 DEBUG: GLTFLoader error details:", error);
     if (fallbackPath) {
       try {
         const gltf = await loadGLTF(fallbackPath);
