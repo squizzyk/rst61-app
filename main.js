@@ -76,8 +76,8 @@ const allMaterials = new Set();
 
 // Блок 10: Параметры камеры по умолчанию.
 const cameraDefaults = {
-  position: new THREE.Vector3(2.0, 1.5, 2.8),
-  target: new THREE.Vector3(0, 1.0, 0)
+  position: new THREE.Vector3(1.2, 1.0, 1.8),
+  target: new THREE.Vector3(0, 0.8, 0)
 };
 
 // Блок 11: Вспомогательные функции UI-статуса загрузки.
@@ -203,8 +203,8 @@ function initThreeScene() {
   controls.autoRotateSpeed = 0.5;
   controls.minPolarAngle = Math.PI * 0.05;
   controls.maxPolarAngle = Math.PI * 0.82;
-  controls.minDistance = 2;
-  controls.maxDistance = 5;
+  controls.minDistance = 0.8;
+  controls.maxDistance = 6;
   controls.target.copy(cameraDefaults.target);
 
   // Явно задаем поведение мыши:
@@ -442,11 +442,10 @@ function clearPartMaterialMaps() {
 }
 
 function applyFabricMaterialLook(material) {
-  // Тяжёлый бифлекс под ярким молочным светом: roughness 0.65 исключает шиноподобный
-  // блеск, metalness 0.05 даёт ровно столько холодного отблеска, сколько нужно
-  // для читаемости фактуры на светлом фоне.
-  material.roughness = 0.65;
-  material.metalness = 0.05;
+  // Реалистичный бифлекс: roughness 0.7 для матовой ткани без блеска,
+  // metalness 0.1 для лёгкого холодного отблеска под студийным светом.
+  material.roughness = 0.7;
+  material.metalness = 0.1;
   material.envMapIntensity = 0.9;
   material.needsUpdate = true;
 }
@@ -556,11 +555,12 @@ function fitCameraToGear() {
   const center = box.getCenter(new THREE.Vector3());
 
   const maxDim = Math.max(size.x, size.y, size.z);
-  const distance = Math.max(2.2, maxDim * 1.9);
+  // Камера ближе к модели, чтобы рашгард занимал ~60-70% высоты вьюпорта.
+  const distance = Math.max(1.4, maxDim * 1.3);
 
-  camera.position.set(center.x + distance * 0.6, center.y + maxDim * 0.5, center.z + distance);
-  controls.target.set(center.x, center.y + maxDim * 0.15, center.z);
-  controls.minDistance = Math.max(0.8, maxDim * 0.6);
+  camera.position.set(center.x + distance * 0.45, center.y + maxDim * 0.3, center.z + distance);
+  controls.target.set(center.x, center.y + maxDim * 0.1, center.z);
+  controls.minDistance = Math.max(0.6, maxDim * 0.5);
   controls.maxDistance = Math.max(4, maxDim * 4.5);
   controls.update();
 }
@@ -581,11 +581,19 @@ function collectPartMaterials(root) {
       applyFabricMaterialLook(material);
       allMaterials.add(material);
 
-      if (meshName.includes("torso") || meshName.includes("body") || meshName.includes("chest") || meshName.includes("front") || meshName.includes("back")) {
-        partMaterials.torso.add(material);
-      }
+      const matName = String(material.name || "").toUpperCase();
 
-      if (meshName.includes("sleeve") || meshName.includes("arm") || meshName.includes("left") || meshName.includes("right")) {
+      // Классификация по имени материала из GLB (FABRIC_1 / FABRIC_2 / FABRIC_3).
+      // FABRIC_1 и FABRIC_3 — торс, FABRIC_2 — рукава.
+      if (matName.includes("FABRIC_1") || matName.includes("FABRIC_3")) {
+        partMaterials.torso.add(material);
+      } else if (matName.includes("FABRIC_2")) {
+        partMaterials.sleeves.add(material);
+      }
+      // Fallback-классификация по имени mesh (для процедурной геометрии).
+      else if (meshName.includes("torso") || meshName.includes("body") || meshName.includes("chest") || meshName.includes("front") || meshName.includes("back")) {
+        partMaterials.torso.add(material);
+      } else if (meshName.includes("sleeve") || meshName.includes("arm") || meshName.includes("left") || meshName.includes("right")) {
         partMaterials.sleeves.add(material);
       }
 
