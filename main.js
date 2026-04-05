@@ -81,7 +81,7 @@ const allMaterials = new Set();
 
 // Блок 10: Параметры камеры по умолчанию.
 const cameraDefaults = {
-  position: new THREE.Vector3(1.2, 1.0, 1.8),
+  position: new THREE.Vector3(0, 1.0, 3.5),
   target: new THREE.Vector3(0, 0.8, 0)
 };
 
@@ -206,8 +206,8 @@ function initThreeScene() {
   controls.enablePan = true;
   controls.autoRotate = false;
   controls.autoRotateSpeed = 0.5;
-  controls.minPolarAngle = Math.PI * 0.05;
-  controls.maxPolarAngle = Math.PI * 0.82;
+  controls.minPolarAngle = 0;
+  controls.maxPolarAngle = Math.PI;
   controls.zoomSpeed = 0.5;       // Плавный зум — по умолчанию 1.0
   controls.minDistance = 0.8;
   controls.maxDistance = 8.0;
@@ -557,15 +557,11 @@ function fitCameraToGear() {
   if (!gearRoot || !camera || !controls) return;
 
   const box = new THREE.Box3().setFromObject(gearRoot);
-  const size = box.getSize(new THREE.Vector3());
   const center = box.getCenter(new THREE.Vector3());
 
-  const maxDim = Math.max(size.x, size.y, size.z);
-  // Камера ближе к модели, чтобы рашгард занимал ~60-70% высоты вьюпорта.
-  const distance = Math.max(1.8, maxDim * 1.5);
-
-  camera.position.set(center.x + distance * 0.45, center.y + maxDim * 0.3, center.z + distance);
-  controls.target.set(center.x, center.y + maxDim * 0.1, center.z);
+  // Камера прямо перед моделью на уровне груди, рашгард занимает ~60-70% высоты вьюпорта.
+  camera.position.set(0, center.y, 3.5);
+  controls.target.set(0, center.y, 0);
   controls.minDistance = 0.8;
   controls.maxDistance = 8.0;
   controls.update();
