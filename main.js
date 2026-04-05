@@ -208,9 +208,9 @@ function initThreeScene() {
   controls.autoRotateSpeed = 0.5;
   controls.minPolarAngle = Math.PI * 0.05;
   controls.maxPolarAngle = Math.PI * 0.82;
-  controls.zoomSpeed = 0.3;       // Плавный зум — по умолчанию 1.0
-  controls.minDistance = 1.5;
-  controls.maxDistance = 5.0;
+  controls.zoomSpeed = 0.5;       // Плавный зум — по умолчанию 1.0
+  controls.minDistance = 0.8;
+  controls.maxDistance = 8.0;
   controls.target.copy(cameraDefaults.target);
 
   // Явно задаем поведение мыши:
@@ -562,12 +562,12 @@ function fitCameraToGear() {
 
   const maxDim = Math.max(size.x, size.y, size.z);
   // Камера ближе к модели, чтобы рашгард занимал ~60-70% высоты вьюпорта.
-  const distance = Math.max(1.4, maxDim * 1.3);
+  const distance = Math.max(1.8, maxDim * 1.5);
 
   camera.position.set(center.x + distance * 0.45, center.y + maxDim * 0.3, center.z + distance);
   controls.target.set(center.x, center.y + maxDim * 0.1, center.z);
-  controls.minDistance = 1.5;
-  controls.maxDistance = 5.0;
+  controls.minDistance = 0.8;
+  controls.maxDistance = 8.0;
   controls.update();
 }
 
@@ -740,10 +740,9 @@ function prepareGearModel(root) {
   // Коррекция оси: Blender экспортирует модель лёжа (ось Z вверх),
   // а Three.js использует ось Y вверх — поворачиваем на -90° по X.
   if (!root.userData.isFallback) {
-    root.rotation.x = -Math.PI / 2;
-    // Поворот на 90° по Y, чтобы грудь смотрела на камеру
-    root.rotation.y = Math.PI / 2;
-    console.log("Rotation applied: x=", root.rotation.x, "y=", root.rotation.y);
+    console.log("BEFORE FIX - rotation:", root.rotation.x, root.rotation.y, root.rotation.z);
+    root.rotation.set(-Math.PI / 2, 0, Math.PI);
+    console.log("AFTER FIX - rotation:", root.rotation.x, root.rotation.y, root.rotation.z);
   }
 
   placeModelOnStudioFloor(root);
