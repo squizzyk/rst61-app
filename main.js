@@ -81,8 +81,8 @@ const allMaterials = new Set();
 
 // Блок 10: Параметры камеры по умолчанию.
 const cameraDefaults = {
-  position: new THREE.Vector3(0, 1.0, 3.5),
-  target: new THREE.Vector3(0, 0.8, 0)
+  position: new THREE.Vector3(0, 1.0, 3.0),
+  target: new THREE.Vector3(0, 0.85, 0)
 };
 
 // Блок 11: Вспомогательные функции UI-статуса загрузки.
@@ -206,11 +206,11 @@ function initThreeScene() {
   controls.enablePan = true;
   controls.autoRotate = false;
   controls.autoRotateSpeed = 0.5;
-  controls.minPolarAngle = 0;
-  controls.maxPolarAngle = Math.PI;
-  controls.zoomSpeed = 0.5;       // Плавный зум — по умолчанию 1.0
+  controls.minPolarAngle = Math.PI * 0.05;
+  controls.maxPolarAngle = Math.PI * 0.95;
+  controls.zoomSpeed = 0.4;       // Плавный зум — по умолчанию 1.0
   controls.minDistance = 0.8;
-  controls.maxDistance = 8.0;
+  controls.maxDistance = 6.0;
   controls.target.copy(cameraDefaults.target);
 
   // Явно задаем поведение мыши:
@@ -560,10 +560,10 @@ function fitCameraToGear() {
   const center = box.getCenter(new THREE.Vector3());
 
   // Камера прямо перед моделью на уровне груди, рашгард занимает ~60-70% высоты вьюпорта.
-  camera.position.set(0, center.y, 3.5);
+  camera.position.set(0, center.y, 3.0);
   controls.target.set(0, center.y, 0);
   controls.minDistance = 0.8;
-  controls.maxDistance = 8.0;
+  controls.maxDistance = 6.0;
   controls.update();
 }
 
@@ -733,12 +733,9 @@ function prepareGearModel(root) {
     });
   });
 
-  // Коррекция оси: Blender экспортирует модель лёжа (ось Z вверх),
-  // а Three.js использует ось Y вверх — поворачиваем на -90° по X.
+  // Коррекция оси: Blender Z-up → Three.js Y-up, грудь смотрит на камеру.
   if (!root.userData.isFallback) {
-    console.log("BEFORE FIX - rotation:", root.rotation.x, root.rotation.y, root.rotation.z);
-    root.rotation.set(-Math.PI / 2, 0, Math.PI);
-    console.log("AFTER FIX - rotation:", root.rotation.x, root.rotation.y, root.rotation.z);
+    root.rotation.set(-Math.PI / 2, 0, 0);
   }
 
   placeModelOnStudioFloor(root);
