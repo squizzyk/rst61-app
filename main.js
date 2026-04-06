@@ -81,8 +81,8 @@ const allMaterials = new Set();
 
 // Блок 10: Параметры камеры по умолчанию.
 const cameraDefaults = {
-  position: new THREE.Vector3(0, 1.0, 2.8),
-  target: new THREE.Vector3(0, 0.85, 0)
+  position: new THREE.Vector3(2.0, 1.5, 2.8),
+  target: new THREE.Vector3(0, 1.0, 0)
 };
 
 // Блок 11: Вспомогательные функции UI-статуса загрузки.
@@ -741,7 +741,7 @@ function prepareGearModel(root) {
   if (!root.userData.isFallback) {
     root.rotation.set(0, 0, 0);
     root.rotation.x = -Math.PI / 2;
-    root.rotation.z = Math.PI;
+    root.rotation.z = 0;
     console.log("Model rotation:", root.rotation.x, root.rotation.y, root.rotation.z);
   }
 
