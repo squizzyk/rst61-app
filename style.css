@@ -462,12 +462,63 @@ a {
   box-shadow: 0 0 0 1px rgba(255, 69, 0, 0.32), 0 0 20px rgba(255, 69, 0, 0.2);
 }
 
+.color-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.palette-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid #333;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.palette-btn:hover {
+  border-color: #FF4500;
+  transform: scale(1.05);
+}
+
+.palette-btn.active {
+  border-color: #FF4500;
+  box-shadow: 0 0 0 2px #FF4500;
+}
+
+.custom-color-toggle {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid #555;
+  color: #ccc;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.custom-color-toggle:hover {
+  border-color: #FF4500;
+  color: #FF4500;
+}
+
+#color-wheel {
+  display: none;
+}
+
+#color-wheel.active {
+  display: flex;
+}
+
 .color-wheel-wrap {
   width: 100%;
   min-height: 250px;
   border: 1px solid #333333;
   background: rgba(0, 0, 0, 0.25);
-  display: flex;
   align-items: center;
   justify-content: center;
   padding: 0.5rem;
@@ -652,34 +703,89 @@ a {
 }
 
 @media (max-width: 1100px) {
-  .config-layout {
-    flex-direction: column;
-    height: 100%;
-  }
-
-  .config-viewer,
-  .controls-panel {
-    width: 100%;
-  }
-
-  .config-viewer {
-    height: 56vh;
-  }
-
-  .controls-panel {
-    height: calc(100% - 56vh);
-  }
-
-  #canvas-container {
-    height: 56vh;
-  }
-
   .home-features-grid {
     grid-template-columns: 1fr;
   }
 
   .gallery-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  /* Разрешаем скролл на странице конфигуратора */
+  #page-config {
+    overflow-y: auto;
+    height: auto;
+    min-height: calc(100vh - var(--header-h));
+  }
+
+  .config-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+  }
+
+  .config-viewer {
+    width: 100%;
+    height: 50vh;
+    flex-shrink: 0;
+    border-right: none;
+  }
+
+  #canvas-container {
+    width: 100%;
+    height: 50vh;
+  }
+
+  .controls-panel {
+    width: 100%;
+    height: auto;
+    padding: 20px;
+    border-left: none;
+    border-top: 1px solid #333333;
+  }
+
+  /* Увеличиваем кнопки для тач-удобства */
+  .model-btn,
+  .view-btn,
+  .part-btn,
+  .rotation-btn {
+    min-height: 48px;
+    font-size: 0.78rem;
+  }
+
+  .control-note {
+    font-size: 0;
+  }
+
+  .control-note::after {
+    font-size: 0.85rem;
+    content: "Один палец — вращение, два пальца — зум.";
+  }
+
+  .custom-color-toggle {
+    min-height: 48px;
+  }
+
+  .palette-btn {
+    border-width: 3px;
+  }
+
+  .color-readout {
+    font-size: 0.88rem;
+  }
+
+  .controls-panel h2 {
+    font-size: 1.2rem;
+  }
+
+  .control-group h3 {
+    font-size: 0.84rem;
+  }
+
+  .price-value {
+    font-size: 1.6rem;
   }
 }
 
@@ -700,6 +806,12 @@ a {
 
   .site-page {
     height: calc(100vh - 96px);
+  }
+
+  /* Конфигуратор: авто-высота для скролла */
+  #page-config {
+    height: auto;
+    min-height: calc(100vh - 96px);
   }
 
   .home-inner {
@@ -728,12 +840,15 @@ a {
     max-width: 34ch;
   }
 
-  .control-grid--3,
-  .control-grid--2 {
+  .gallery-grid {
     grid-template-columns: 1fr;
   }
 
-  .gallery-grid {
-    grid-template-columns: 1fr;
+  .nav-btn {
+    font-size: 0.68rem;
+  }
+
+  .site-nav {
+    gap: 0.5rem;
   }
 }

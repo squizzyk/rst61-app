@@ -27,6 +27,8 @@ const rotateStopButton = document.getElementById("btn-rotate-stop");
 
 const colorWheelContainer = document.getElementById("color-wheel");
 const colorValueLabel = document.getElementById("color-value");
+const paletteButtons = document.querySelectorAll(".palette-btn");
+const customColorToggle = document.querySelector(".custom-color-toggle");
 
 // Блок 4: Константы путей моделей.
 const MODEL_PATHS = {
@@ -387,6 +389,10 @@ function initIroPicker() {
   colorPicker.on("color:change", (iroColor) => {
     const hex = iroColor.hexString.toUpperCase();
     changeColor(hex);
+    // Обновляем подсветку палитры: если цвет совпадает — подсвечиваем, иначе сбрасываем.
+    paletteButtons.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.color?.toUpperCase() === hex);
+    });
   });
 
   updateColorLabel(partColorState[currentPart]);
@@ -408,6 +414,11 @@ function updateColorWheelSize() {
 function syncPickerToCurrentPart() {
   const hex = partColorState[currentPart] || "#111111";
   updateColorLabel(hex);
+
+  // Обновляем активную кнопку палитры при переключении зоны.
+  paletteButtons.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.color?.toUpperCase() === hex.toUpperCase());
+  });
 
   if (!colorPicker) return;
   const pickerHex = colorPicker.color.hexString.toUpperCase();
@@ -996,6 +1007,31 @@ function setupConfiguratorEvents() {
 
   rotateStartButton?.addEventListener("click", () => toggleAutoRotate(true));
   rotateStopButton?.addEventListener("click", () => toggleAutoRotate(false));
+
+  // Палитра фиксированных цветов: клик по кнопке красит выбранную зону.
+  paletteButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const hex = btn.dataset.color;
+      if (!hex) return;
+      changeColor(hex);
+      // Обновляем активную кнопку палитры.
+      paletteButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      // Синхронизируем iro.js если он открыт.
+      if (colorPicker) {
+        colorPicker.color.hexString = hex;
+      }
+    });
+  });
+
+  // Кнопка "СВОЙ ЦВЕТ" — показать/скрыть цветовое колесо iro.js.
+  customColorToggle?.addEventListener("click", () => {
+    colorWheelContainer?.classList.toggle("active");
+    // При открытии пересчитываем размер колеса.
+    if (colorWheelContainer?.classList.contains("active")) {
+      updateColorWheelSize();
+    }
+  });
 }
 
 // Блок 42: Глобальный render-loop.
