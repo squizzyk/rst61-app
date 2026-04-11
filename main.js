@@ -177,7 +177,7 @@ function initThreeScene() {
   }
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf2f2f7);
+  scene.background = new THREE.Color(0x2a2a2e);
 
   const { width, height } = getContainerSize();
   camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 200);
