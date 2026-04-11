@@ -476,6 +476,7 @@ a {
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
+  min-height: 44px;
 }
 
 .palette-btn:hover {
@@ -490,7 +491,7 @@ a {
 
 .custom-color-toggle {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   background: transparent;
   border: 1px solid #555;
   color: #ccc;
@@ -713,6 +714,16 @@ a {
 }
 
 @media (max-width: 900px) {
+  /* Снимаем блокировку скролла на мобильных */
+  body {
+    overflow-y: auto;
+  }
+
+  .site-main {
+    height: auto;
+    min-height: calc(100vh - var(--header-h));
+  }
+
   /* Разрешаем скролл на странице конфигуратора */
   #page-config {
     overflow-y: auto;
@@ -742,6 +753,7 @@ a {
     width: 100%;
     height: auto;
     padding: 20px;
+    overflow-y: auto;
     border-left: none;
     border-top: 1px solid #333333;
   }
@@ -752,7 +764,7 @@ a {
   .part-btn,
   .rotation-btn {
     min-height: 48px;
-    font-size: 0.78rem;
+    font-size: 0.85rem;
   }
 
   .control-note {
@@ -801,7 +813,8 @@ a {
 
   .site-main {
     margin-top: 96px;
-    height: calc(100vh - 96px);
+    height: auto;
+    min-height: calc(100vh - 96px);
   }
 
   .site-page {
