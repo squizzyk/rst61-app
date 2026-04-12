@@ -58,8 +58,10 @@ const partColorState = {
 // Блок 6.1: Состояние надписи на спине рашгарда.
 let currentText = "";
 let currentFont = "Impact";
+let currentTextColor = "#FFFFFF";
 let textCanvas = null;
 let textTexture = null;
+let textTextureDebugLogged = false;
 
 // Блок 7: Core-объекты Three.js.
 let scene;
@@ -610,6 +612,10 @@ function collectPartMaterials(root) {
       // FABRIC_1 и FABRIC_3 — торс, FABRIC_2 — рукава.
       if (matName.includes("FABRIC_1") || matName.includes("FABRIC_3")) {
         partMaterials.torso.add(material);
+        // Диагностика UV для торса — проверяем, куда попадает текстура.
+        if (node.geometry && node.geometry.attributes.uv) {
+          console.log("UV sample for", node.name, "mat:", matName, node.geometry.attributes.uv.array.slice(0, 8));
+        }
       } else if (matName.includes("FABRIC_2")) {
         partMaterials.sleeves.add(material);
       }
@@ -700,12 +706,17 @@ function updateTextTexture() {
   ctx.fillRect(0, 0, 1024, 1024);
 
   if (currentText.length > 0) {
-    // Белый текст в верхней трети (зона лопаток).
-    ctx.fillStyle = "#ffffff";
-    ctx.font = `bold 140px ${currentFont}`;
+    // Текст цветом из палитры, крупный для видимости.
+    ctx.fillStyle = currentTextColor;
+    ctx.font = `bold 180px ${currentFont}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(currentText.toUpperCase(), 512, 350);
+
+    // DEBUG: красная рамка вокруг текстовой зоны для визуальной отладки UV-маппинга.
+    ctx.strokeStyle = "#FF0000";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(100, 200, 824, 300);
   }
 
   if (!textTexture) {
@@ -724,6 +735,22 @@ function updateTextTexture() {
     }
     mat.needsUpdate = true;
   });
+
+  // Одноразовая диагностика текстуры и материалов.
+  if (currentText.length > 0 && !textTextureDebugLogged) {
+    textTextureDebugLogged = true;
+    console.log("=== TEXT TEXTURE DEBUG ===");
+    console.log("Canvas size:", textCanvas.width, "x", textCanvas.height);
+    console.log("Text color:", currentTextColor, "| Font:", currentFont, "| Text:", currentText);
+    console.log("partMaterials.torso size:", partMaterials.torso.size);
+    partMaterials.torso.forEach((mat) => {
+      console.log("  Torso mat:", mat.name || "(unnamed)", "| map set:", !!mat.map, "| uuid:", mat.uuid);
+    });
+    // Сэмпл пикселей из зоны текста для проверки отрисовки.
+    const sampleData = ctx.getImageData(512, 350, 1, 1).data;
+    console.log("Pixel sample at (512,350):", sampleData);
+    console.log("=========================");
+  }
 }
 
 // Блок 31: Управление прозрачностью экипа в режиме "На манекене".
@@ -1095,6 +1122,16 @@ function setupConfiguratorEvents() {
       document.querySelectorAll(".font-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       currentFont = btn.dataset.font;
+      updateTextTexture();
+    });
+  });
+
+  // Блок 41.2: Выбор цвета текста на спине рашгарда.
+  document.querySelectorAll(".text-color-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".text-color-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentTextColor = btn.dataset.textColor;
       updateTextTexture();
     });
   });

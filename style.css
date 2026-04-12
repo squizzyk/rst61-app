@@ -717,6 +717,27 @@ a {
 .font-btn:hover {
   border-color: #FF4500;
 }
+.text-color-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.text-color-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  min-height: 36px;
+  border: 2px solid #333;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.text-color-btn:hover {
+  border-color: #FF4500;
+}
+.text-color-btn.active {
+  border-color: #FF4500;
+  box-shadow: 0 0 0 2px #FF4500;
+}
 .clear-text-btn {
   padding: 10px;
   background: transparent;
