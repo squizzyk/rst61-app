@@ -298,7 +298,7 @@ a {
 
 #page-config {
   overflow: hidden;
-  background: #2a2a2e;
+  background: #d8d8dc;
 }
 
 .config-layout {
@@ -318,7 +318,7 @@ a {
   position: relative;
   width: 100%;
   height: calc(100vh - var(--header-h));
-  background: #2a2a2e;
+  background: #d8d8dc;
 }
 
 #canvas-container canvas {
@@ -336,7 +336,7 @@ a {
   align-items: center;
   justify-content: center;
   gap: 0.9rem;
-  background: rgba(42, 42, 46, 0.75);
+  background: rgba(216, 216, 220, 0.75);
   backdrop-filter: blur(2px);
   opacity: 0;
   pointer-events: none;
@@ -363,7 +363,7 @@ a {
   letter-spacing: 0.11em;
   text-transform: uppercase;
   font-weight: 800;
-  color: #ccc;
+  color: #333;
 }
 
 @keyframes spin {
@@ -682,6 +682,53 @@ a {
 .contacts-inner a:focus-visible {
   color: var(--accent);
   border-color: var(--accent);
+}
+
+.text-input {
+  width: 100%;
+  padding: 10px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid #555;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-sizing: border-box;
+}
+.text-input:focus {
+  border-color: #FF4500;
+  outline: none;
+}
+.font-btn {
+  min-height: 40px;
+  border: 1px solid #555;
+  background: transparent;
+  color: #ccc;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+.font-btn.active {
+  border-color: #FF4500;
+  color: #FF4500;
+}
+.font-btn:hover {
+  border-color: #FF4500;
+}
+.clear-text-btn {
+  padding: 10px;
+  background: transparent;
+  border: 1px solid #555;
+  color: #aaa;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+.clear-text-btn:hover {
+  border-color: #FF4500;
+  color: #FF4500;
 }
 
 .pricing-group {

@@ -55,6 +55,12 @@ const partColorState = {
   sleeves: "#111111"
 };
 
+// Блок 6.1: Состояние надписи на спине рашгарда.
+let currentText = "";
+let currentFont = "Impact";
+let textCanvas = null;
+let textTexture = null;
+
 // Блок 7: Core-объекты Three.js.
 let scene;
 let camera;
@@ -177,7 +183,7 @@ function initThreeScene() {
   }
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x2a2a2e);
+  scene.background = new THREE.Color(0xd8d8dc);
 
   const { width, height } = getContainerSize();
   camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 200);
@@ -674,6 +680,50 @@ function changeColor(hex) {
   applyColorToPart(currentPart, partColorState[currentPart]);
   updateColorLabel(partColorState[currentPart]);
   updatePriceDisplay();
+  // Обновляем текстуру надписи при смене цвета торса, чтобы фон текстуры совпадал.
+  if (currentPart === "torso") {
+    updateTextTexture();
+  }
+}
+
+// Блок 30.2: Канвас-текстура для надписи на спине рашгарда.
+function updateTextTexture() {
+  if (!textCanvas) {
+    textCanvas = document.createElement("canvas");
+    textCanvas.width = 1024;
+    textCanvas.height = 1024;
+  }
+  const ctx = textCanvas.getContext("2d");
+
+  // Заливаем текущим цветом торса как базу.
+  ctx.fillStyle = partColorState.torso;
+  ctx.fillRect(0, 0, 1024, 1024);
+
+  if (currentText.length > 0) {
+    // Белый текст в верхней трети (зона лопаток).
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `bold 140px ${currentFont}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(currentText.toUpperCase(), 512, 350);
+  }
+
+  if (!textTexture) {
+    textTexture = new THREE.CanvasTexture(textCanvas);
+    textTexture.colorSpace = THREE.SRGBColorSpace;
+  } else {
+    textTexture.needsUpdate = true;
+  }
+
+  // Применяем к материалам торса.
+  partMaterials.torso.forEach((mat) => {
+    if (currentText.length > 0) {
+      mat.map = textTexture;
+    } else {
+      mat.map = null;
+    }
+    mat.needsUpdate = true;
+  });
 }
 
 // Блок 31: Управление прозрачностью экипа в режиме "На манекене".
@@ -1031,6 +1081,28 @@ function setupConfiguratorEvents() {
     if (colorWheelContainer?.classList.contains("active")) {
       updateColorWheelSize();
     }
+  });
+
+  // Блок 41.1: События надписи на спине рашгарда.
+  const textInput = document.getElementById("rashguard-text-input");
+  textInput?.addEventListener("input", (e) => {
+    currentText = e.target.value.trim();
+    updateTextTexture();
+  });
+
+  document.querySelectorAll(".font-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".font-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentFont = btn.dataset.font;
+      updateTextTexture();
+    });
+  });
+
+  document.getElementById("clear-text-btn")?.addEventListener("click", () => {
+    currentText = "";
+    if (textInput) textInput.value = "";
+    updateTextTexture();
   });
 }
 
