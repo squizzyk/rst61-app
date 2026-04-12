@@ -59,9 +59,9 @@ const partColorState = {
 let currentText = "";
 let currentFont = "Impact";
 let currentTextColor = "#FFFFFF";
+let currentCase = "upper";
 let textCanvas = null;
 let textTexture = null;
-let textTextureDebugLogged = false;
 
 // Блок 7: Core-объекты Three.js.
 let scene;
@@ -218,7 +218,8 @@ function initThreeScene() {
   controls.autoRotateSpeed = 0.5;
   controls.minPolarAngle = 0;
   controls.maxPolarAngle = Math.PI;
-  controls.zoomSpeed = 0.3;       // Плавный зум — по умолчанию 1.0
+  controls.zoomSpeed = 0.15;      // Ультра-плавный зум — защита от скачков при масштабе браузера <80%
+  controls.zoomToCursor = false;
   controls.minDistance = 0.8;
   controls.maxDistance = 6.0;
   controls.target.copy(cameraDefaults.target);
@@ -236,6 +237,11 @@ function initThreeScene() {
     ONE: THREE.TOUCH.ROTATE,
     TWO: THREE.TOUCH.DOLLY_PAN
   };
+
+  // Перехватываем wheel на canvas, чтобы браузерный зум не интерферировал с OrbitControls.
+  renderer.domElement.addEventListener("wheel", (e) => {
+    e.preventDefault();
+  }, { passive: false });
 
   setupStudioLighting();
   createStudioFloor();
@@ -612,10 +618,6 @@ function collectPartMaterials(root) {
       // FABRIC_1 и FABRIC_3 — торс, FABRIC_2 — рукава.
       if (matName.includes("FABRIC_1") || matName.includes("FABRIC_3")) {
         partMaterials.torso.add(material);
-        // Диагностика UV для торса — проверяем, куда попадает текстура.
-        if (node.geometry && node.geometry.attributes.uv) {
-          console.log("UV sample for", node.name, "mat:", matName, node.geometry.attributes.uv.array.slice(0, 8));
-        }
       } else if (matName.includes("FABRIC_2")) {
         partMaterials.sleeves.add(material);
       }
@@ -706,17 +708,12 @@ function updateTextTexture() {
   ctx.fillRect(0, 0, 1024, 1024);
 
   if (currentText.length > 0) {
-    // Текст цветом из палитры, крупный для видимости.
     ctx.fillStyle = currentTextColor;
     ctx.font = `bold 180px ${currentFont}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(currentText.toUpperCase(), 512, 350);
-
-    // DEBUG: красная рамка вокруг текстовой зоны для визуальной отладки UV-маппинга.
-    ctx.strokeStyle = "#FF0000";
-    ctx.lineWidth = 4;
-    ctx.strokeRect(100, 200, 824, 300);
+    const displayText = currentCase === "upper" ? currentText.toUpperCase() : currentText;
+    ctx.fillText(displayText, 512, 350);
   }
 
   if (!textTexture) {
@@ -736,21 +733,6 @@ function updateTextTexture() {
     mat.needsUpdate = true;
   });
 
-  // Одноразовая диагностика текстуры и материалов.
-  if (currentText.length > 0 && !textTextureDebugLogged) {
-    textTextureDebugLogged = true;
-    console.log("=== TEXT TEXTURE DEBUG ===");
-    console.log("Canvas size:", textCanvas.width, "x", textCanvas.height);
-    console.log("Text color:", currentTextColor, "| Font:", currentFont, "| Text:", currentText);
-    console.log("partMaterials.torso size:", partMaterials.torso.size);
-    partMaterials.torso.forEach((mat) => {
-      console.log("  Torso mat:", mat.name || "(unnamed)", "| map set:", !!mat.map, "| uuid:", mat.uuid);
-    });
-    // Сэмпл пикселей из зоны текста для проверки отрисовки.
-    const sampleData = ctx.getImageData(512, 350, 1, 1).data;
-    console.log("Pixel sample at (512,350):", sampleData);
-    console.log("=========================");
-  }
 }
 
 // Блок 31: Управление прозрачностью экипа в режиме "На манекене".
@@ -1136,6 +1118,16 @@ function setupConfiguratorEvents() {
     });
   });
 
+  // Блок 41.3: Переключение регистра текста (заглавные / как ввели).
+  document.querySelectorAll(".case-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".case-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentCase = btn.dataset.case;
+      updateTextTexture();
+    });
+  });
+
   document.getElementById("clear-text-btn")?.addEventListener("click", () => {
     currentText = "";
     if (textInput) textInput.value = "";
@@ -1154,6 +1146,17 @@ function animate() {
   if (!isConfigPageActive) return;
 
   controls?.update();
+
+  // Жёсткое ограничение дистанции камеры — страховка от скачков зума.
+  if (controls) {
+    const dist = camera.position.distanceTo(controls.target);
+    if (dist < controls.minDistance) {
+      camera.position.sub(controls.target).normalize().multiplyScalar(controls.minDistance).add(controls.target);
+    } else if (dist > controls.maxDistance) {
+      camera.position.sub(controls.target).normalize().multiplyScalar(controls.maxDistance).add(controls.target);
+    }
+  }
+
   renderer.render(scene, camera);
 }
 

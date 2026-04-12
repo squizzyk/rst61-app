@@ -738,6 +738,20 @@ a {
   border-color: #FF4500;
   box-shadow: 0 0 0 2px #FF4500;
 }
+.case-btn {
+  min-height: 36px;
+  border: 1px solid #555;
+  background: transparent;
+  color: #ccc;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+}
+.case-btn.active {
+  border-color: #FF4500;
+  color: #FF4500;
+}
 .clear-text-btn {
   padding: 10px;
   background: transparent;
