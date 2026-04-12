@@ -211,15 +211,13 @@ function initThreeScene() {
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.1;
-  controls.enableZoom = true;
+  controls.enableZoom = false;   // Встроенный зум отключён — используем кастомный wheel-обработчик
   controls.enableRotate = true;
   controls.enablePan = true;
   controls.autoRotate = false;
   controls.autoRotateSpeed = 0.5;
   controls.minPolarAngle = 0;
   controls.maxPolarAngle = Math.PI;
-  controls.zoomSpeed = 0.15;      // Ультра-плавный зум — защита от скачков при масштабе браузера <80%
-  controls.zoomToCursor = false;
   controls.minDistance = 0.8;
   controls.maxDistance = 6.0;
   controls.target.copy(cameraDefaults.target);
@@ -231,6 +229,18 @@ function initThreeScene() {
     MIDDLE: THREE.MOUSE.DOLLY,
     RIGHT: THREE.MOUSE.PAN
   };
+
+  // Кастомный зум — фиксированный шаг, не зависит от масштаба браузера / devicePixelRatio
+  renderer.domElement.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    const zoomFactor = event.deltaY > 0 ? 1.05 : 0.95;
+    const offset = camera.position.clone().sub(controls.target);
+    const newDistance = offset.length() * zoomFactor;
+    const clampedDistance = Math.max(controls.minDistance, Math.min(controls.maxDistance, newDistance));
+    offset.setLength(clampedDistance);
+    camera.position.copy(controls.target).add(offset);
+    controls.update();
+  }, { passive: false });
 
   // Поддержка touch-жестов для мобильных браузеров.
   controls.touches = {
