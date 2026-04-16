@@ -56,12 +56,13 @@ const partColorState = {
 };
 
 // Блок 6.1: Состояние надписи на спине рашгарда.
+// Подход: HTML-оверлей поверх canvas (у GLB-модели нет UV-развёртки под текстуру).
 let currentText = "";
 let currentFont = "Impact";
 let currentTextColor = "#FFFFFF";
 let currentCase = "upper";
-let textCanvas = null;
-let textTexture = null;
+const textOverlay = document.getElementById("text-overlay");
+const textOverlayContent = document.getElementById("text-overlay-content");
 
 // Блок 7: Core-объекты Three.js.
 let scene;
@@ -698,51 +699,39 @@ function changeColor(hex) {
   applyColorToPart(currentPart, partColorState[currentPart]);
   updateColorLabel(partColorState[currentPart]);
   updatePriceDisplay();
-  // Обновляем текстуру надписи при смене цвета торса, чтобы фон текстуры совпадал.
-  if (currentPart === "torso") {
-    updateTextTexture();
-  }
 }
 
-// Блок 30.2: Канвас-текстура для надписи на спине рашгарда.
+// Блок 30.2: Обновление HTML-оверлея с надписью (текст, шрифт, цвет, регистр).
+// Видимость оверлея контролирует updateTextOverlayVisibility() — вызывается каждый кадр.
 function updateTextTexture() {
-  if (!textCanvas) {
-    textCanvas = document.createElement("canvas");
-    textCanvas.width = 1024;
-    textCanvas.height = 1024;
+  if (!textOverlayContent) return;
+  const displayText = currentCase === "upper" ? currentText.toUpperCase() : currentText;
+  textOverlayContent.textContent = displayText;
+  textOverlayContent.style.fontFamily = currentFont;
+  textOverlayContent.style.color = currentTextColor;
+}
+
+// Блок 30.3: Видимость оверлея по положению камеры (показывается только со спины модели).
+// Дефолтная камера стоит с +Z (грудь смотрит на +Z после rotation.x=-π/2), спина — на -Z.
+// Когда камера позади, toTarget смотрит в +Z → совпадает с вектором "взгляд в сторону спины".
+function updateTextOverlayVisibility() {
+  if (!textOverlay || !textOverlayContent || !camera || !controls) return;
+
+  const displayText = textOverlayContent.textContent;
+  if (!displayText || displayText.length === 0) {
+    textOverlay.classList.remove("visible");
+    return;
   }
-  const ctx = textCanvas.getContext("2d");
 
-  // Заливаем текущим цветом торса как базу.
-  ctx.fillStyle = partColorState.torso;
-  ctx.fillRect(0, 0, 1024, 1024);
+  const toTarget = controls.target.clone().sub(camera.position).normalize();
+  const backDir = new THREE.Vector3(0, 0, 1);
+  const dot = toTarget.dot(backDir);
 
-  if (currentText.length > 0) {
-    ctx.fillStyle = currentTextColor;
-    ctx.font = `bold 180px ${currentFont}`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    const displayText = currentCase === "upper" ? currentText.toUpperCase() : currentText;
-    ctx.fillText(displayText, 512, 350);
-  }
-
-  if (!textTexture) {
-    textTexture = new THREE.CanvasTexture(textCanvas);
-    textTexture.colorSpace = THREE.SRGBColorSpace;
+  if (dot > 0.3) {
+    textOverlay.classList.add("visible");
   } else {
-    textTexture.needsUpdate = true;
+    textOverlay.classList.remove("visible");
   }
-
-  // Применяем к материалам торса.
-  partMaterials.torso.forEach((mat) => {
-    if (currentText.length > 0) {
-      mat.map = textTexture;
-    } else {
-      mat.map = null;
-    }
-    mat.needsUpdate = true;
-  });
-
 }
 
 // Блок 31: Управление прозрачностью экипа в режиме "На манекене".
@@ -1156,6 +1145,9 @@ function animate() {
   if (!isConfigPageActive) return;
 
   controls?.update();
+
+  // Обновляем видимость HTML-оверлея с надписью на каждом кадре.
+  updateTextOverlayVisibility();
 
   // Жёсткое ограничение дистанции камеры — страховка от скачков зума.
   if (controls) {

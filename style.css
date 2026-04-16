@@ -327,6 +327,33 @@ a {
   height: 100%;
 }
 
+/* Надпись-оверлей поверх 3D-сцены. Показывается, когда камера смотрит на спину модели.
+   Текст — HTML, не текстура, так как GLB рашгарда пока без UV-развёртки. */
+.text-overlay {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(0deg);
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.text-overlay.visible {
+  opacity: 1;
+}
+
+#text-overlay-content {
+  font-weight: bold;
+  font-size: clamp(20px, 4vw, 48px);
+  letter-spacing: 0.05em;
+  display: inline-block;
+}
+
 .loading-overlay {
   position: absolute;
   inset: 0;
