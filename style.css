@@ -282,7 +282,8 @@ a {
   border: 1px solid var(--accent);
   background: var(--accent);
   color: #fff;
-  padding: 0.86rem 1.2rem;
+  padding: 1.1rem 2rem;
+  font-size: 1.1rem;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-weight: 800;
@@ -325,33 +326,6 @@ a {
   display: block;
   width: 100%;
   height: 100%;
-}
-
-/* Надпись-оверлей поверх 3D-сцены. Показывается, когда камера смотрит на спину модели.
-   Текст — HTML, не текстура, так как GLB рашгарда пока без UV-развёртки. */
-.text-overlay {
-  position: absolute;
-  top: 38%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(0deg);
-  pointer-events: none;
-  z-index: 5;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  text-align: center;
-  white-space: nowrap;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-}
-
-.text-overlay.visible {
-  opacity: 1;
-}
-
-#text-overlay-content {
-  font-weight: bold;
-  font-size: clamp(20px, 4vw, 48px);
-  letter-spacing: 0.05em;
-  display: inline-block;
 }
 
 .loading-overlay {
@@ -711,88 +685,6 @@ a {
   border-color: var(--accent);
 }
 
-.text-input {
-  width: 100%;
-  padding: 10px;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid #555;
-  color: #fff;
-  font-family: inherit;
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  box-sizing: border-box;
-}
-.text-input:focus {
-  border-color: #FF4500;
-  outline: none;
-}
-.font-btn {
-  min-height: 40px;
-  border: 1px solid #555;
-  background: transparent;
-  color: #ccc;
-  cursor: pointer;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-}
-.font-btn.active {
-  border-color: #FF4500;
-  color: #FF4500;
-}
-.font-btn:hover {
-  border-color: #FF4500;
-}
-.text-color-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-.text-color-btn {
-  width: 100%;
-  aspect-ratio: 1;
-  min-height: 36px;
-  border: 2px solid #333;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.text-color-btn:hover {
-  border-color: #FF4500;
-}
-.text-color-btn.active {
-  border-color: #FF4500;
-  box-shadow: 0 0 0 2px #FF4500;
-}
-.case-btn {
-  min-height: 36px;
-  border: 1px solid #555;
-  background: transparent;
-  color: #ccc;
-  cursor: pointer;
-  text-transform: uppercase;
-  font-size: 0.7rem;
-  letter-spacing: 0.05em;
-}
-.case-btn.active {
-  border-color: #FF4500;
-  color: #FF4500;
-}
-.clear-text-btn {
-  padding: 10px;
-  background: transparent;
-  border: 1px solid #555;
-  color: #aaa;
-  cursor: pointer;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-}
-.clear-text-btn:hover {
-  border-color: #FF4500;
-  color: #FF4500;
-}
-
 .pricing-group {
   text-align: center;
 }
@@ -973,4 +865,252 @@ a {
   .site-nav {
     gap: 0.5rem;
   }
+}
+
+/* ============================================================
+   СЕКЦИЯ ЦЕН НА ГЛАВНОЙ
+   ============================================================ */
+.home-pricing {
+  padding: 3rem 0;
+  background: #080808;
+}
+
+.home-pricing h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  letter-spacing: 0.08em;
+  color: #fff;
+}
+
+.pricing-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.pricing-card {
+  background: #050505;
+  border: 2px solid var(--accent);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  transition: box-shadow 0.25s ease;
+}
+
+.pricing-card:hover {
+  box-shadow: 0 0 24px rgba(255, 69, 0, 0.35);
+}
+
+.pricing-card--team {
+  border-color: #e03c00;
+}
+
+.pricing-card h3 {
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.pricing-card-price {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1;
+}
+
+.pricing-card-price span {
+  font-size: 0.55em;
+  color: #aaa;
+}
+
+.pricing-card-desc {
+  font-size: 0.82rem;
+  color: #999;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.pricing-card-btn {
+  margin-top: 0.5rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.6rem;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pricing-card-btn:hover {
+  background: #ff5b21;
+  box-shadow: 0 0 14px rgba(255, 69, 0, 0.4);
+}
+
+@media (max-width: 600px) {
+  .pricing-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   ДОП. СТОИМОСТЬ В КОНФИГУРАТОРЕ
+   ============================================================ */
+.price-note-bulk {
+  font-size: 0.75rem;
+  color: var(--accent);
+  margin: 0.3rem 0 0;
+  letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   ПОДСКАЗКА КОМАНДНЫХ ЗАКАЗОВ В ПАНЕЛИ
+   ============================================================ */
+.team-contact-hint {
+  font-size: 0.72rem;
+  color: #888;
+  text-align: center;
+  padding: 0.8rem 0 0.4rem;
+  letter-spacing: 0.03em;
+}
+
+.team-contact-hint a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.team-contact-hint a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+   МОДАЛЬНОЕ ОКНО ФОРМЫ ЗАКАЗА
+   ============================================================ */
+.order-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  align-items: center;
+  justify-content: center;
+}
+
+.order-modal.active {
+  display: flex;
+}
+
+.order-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+}
+
+.order-modal-dialog {
+  position: relative;
+  z-index: 1;
+  background: #0a0a0a;
+  border: 1px solid var(--accent);
+  padding: 2rem 2rem 1.5rem;
+  width: min(480px, 94vw);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+
+.order-modal-dialog h2 {
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  margin: 0 0 1.4rem;
+  color: #fff;
+  text-align: center;
+}
+
+.order-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.9rem;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.15s;
+  padding: 0.2rem 0.4rem;
+}
+
+.order-modal-close:hover {
+  color: var(--accent);
+}
+
+.order-form-field {
+  margin-bottom: 0.85rem;
+}
+
+.order-form-field input,
+.order-form-field select,
+.order-form-field textarea {
+  width: 100%;
+  background: #111;
+  border: 1px solid #333;
+  color: #eee;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  padding: 0.65rem 0.8rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+  appearance: none;
+}
+
+.order-form-field input::placeholder,
+.order-form-field textarea::placeholder {
+  color: #555;
+}
+
+.order-form-field input:focus,
+.order-form-field select:focus,
+.order-form-field textarea:focus {
+  border-color: var(--accent);
+}
+
+.order-form-field select {
+  cursor: pointer;
+}
+
+.order-form-field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.order-submit-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0.9rem;
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-submit-btn:hover {
+  background: #ff5b21;
+  box-shadow: 0 0 16px rgba(255, 69, 0, 0.45);
 }

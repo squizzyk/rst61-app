@@ -55,14 +55,6 @@ const partColorState = {
   sleeves: "#111111"
 };
 
-// Блок 6.1: Состояние надписи на спине рашгарда.
-// Подход: HTML-оверлей поверх canvas (у GLB-модели нет UV-развёртки под текстуру).
-let currentText = "";
-let currentFont = "Impact";
-let currentTextColor = "#FFFFFF";
-let currentCase = "upper";
-const textOverlay = document.getElementById("text-overlay");
-const textOverlayContent = document.getElementById("text-overlay-content");
 
 // Блок 7: Core-объекты Three.js.
 let scene;
@@ -670,21 +662,12 @@ function applyAllPartColors() {
   applyColorToPart("sleeves", partColorState.sleeves);
 }
 
-// Блок 30.1: Динамическое ценообразование.
-// Базовая цена рашгарда: 4500₽. Каждое изменение цвета зоны от дефолта добавляет наценку.
-const BASE_PRICE = 4500;
-const COLOR_CHANGE_INCREMENT = 500;
-const DEFAULT_PART_COLOR = "#111111";
+// Блок 30.1: Ценообразование. Цена фиксирована, не зависит от выбора цвета.
+const BASE_PRICE = 4300;
 const priceValueElement = document.getElementById("price-value");
 
 function calculatePrice() {
-  let price = BASE_PRICE;
-  for (const part in partColorState) {
-    if (partColorState[part] !== DEFAULT_PART_COLOR) {
-      price += COLOR_CHANGE_INCREMENT;
-    }
-  }
-  return price;
+  return BASE_PRICE;
 }
 
 function updatePriceDisplay() {
@@ -698,40 +681,6 @@ function changeColor(hex) {
   partColorState[currentPart] = hex.toUpperCase();
   applyColorToPart(currentPart, partColorState[currentPart]);
   updateColorLabel(partColorState[currentPart]);
-  updatePriceDisplay();
-}
-
-// Блок 30.2: Обновление HTML-оверлея с надписью (текст, шрифт, цвет, регистр).
-// Видимость оверлея контролирует updateTextOverlayVisibility() — вызывается каждый кадр.
-function updateTextTexture() {
-  if (!textOverlayContent) return;
-  const displayText = currentCase === "upper" ? currentText.toUpperCase() : currentText;
-  textOverlayContent.textContent = displayText;
-  textOverlayContent.style.fontFamily = currentFont;
-  textOverlayContent.style.color = currentTextColor;
-}
-
-// Блок 30.3: Видимость оверлея по положению камеры (показывается только со спины модели).
-// Дефолтная камера стоит с +Z (грудь смотрит на +Z после rotation.x=-π/2), спина — на -Z.
-// Когда камера позади, toTarget смотрит в +Z → совпадает с вектором "взгляд в сторону спины".
-function updateTextOverlayVisibility() {
-  if (!textOverlay || !textOverlayContent || !camera || !controls) return;
-
-  const displayText = textOverlayContent.textContent;
-  if (!displayText || displayText.length === 0) {
-    textOverlay.classList.remove("visible");
-    return;
-  }
-
-  const toTarget = controls.target.clone().sub(camera.position).normalize();
-  const backDir = new THREE.Vector3(0, 0, 1);
-  const dot = toTarget.dot(backDir);
-
-  if (dot > 0.3) {
-    textOverlay.classList.add("visible");
-  } else {
-    textOverlay.classList.remove("visible");
-  }
 }
 
 // Блок 31: Управление прозрачностью экипа в режиме "На манекене".
@@ -1036,22 +985,6 @@ function toggleAutoRotate(forceValue) {
 
 // Блок 41: События панели управления конфигуратором.
 function setupConfiguratorEvents() {
-  modelButtons.forEach((button) => {
-    button.addEventListener("click", async () => {
-      const modelType = button.dataset.model;
-      if (!modelType || modelType === currentModelType) return;
-      await loadGearModel(modelType);
-    });
-  });
-
-  viewButtons.forEach((button) => {
-    button.addEventListener("click", async () => {
-      const mode = button.dataset.view;
-      if (!mode || mode === currentViewMode) return;
-      await setViewMode(mode);
-    });
-  });
-
   partButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const part = button.dataset.part;
@@ -1091,47 +1024,6 @@ function setupConfiguratorEvents() {
     }
   });
 
-  // Блок 41.1: События надписи на спине рашгарда.
-  const textInput = document.getElementById("rashguard-text-input");
-  textInput?.addEventListener("input", (e) => {
-    currentText = e.target.value.trim();
-    updateTextTexture();
-  });
-
-  document.querySelectorAll(".font-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".font-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentFont = btn.dataset.font;
-      updateTextTexture();
-    });
-  });
-
-  // Блок 41.2: Выбор цвета текста на спине рашгарда.
-  document.querySelectorAll(".text-color-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".text-color-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentTextColor = btn.dataset.textColor;
-      updateTextTexture();
-    });
-  });
-
-  // Блок 41.3: Переключение регистра текста (заглавные / как ввели).
-  document.querySelectorAll(".case-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".case-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentCase = btn.dataset.case;
-      updateTextTexture();
-    });
-  });
-
-  document.getElementById("clear-text-btn")?.addEventListener("click", () => {
-    currentText = "";
-    if (textInput) textInput.value = "";
-    updateTextTexture();
-  });
 }
 
 // Блок 42: Глобальный render-loop.
@@ -1146,9 +1038,6 @@ function animate() {
 
   controls?.update();
 
-  // Обновляем видимость HTML-оверлея с надписью на каждом кадре.
-  updateTextOverlayVisibility();
-
   // Жёсткое ограничение дистанции камеры — страховка от скачков зума.
   if (controls) {
     const dist = camera.position.distanceTo(controls.target);
@@ -1162,6 +1051,84 @@ function animate() {
   renderer.render(scene, camera);
 }
 
+// Блок 42: Модальное окно формы заказа → Telegram.
+const orderModal = document.getElementById("order-modal");
+const orderModalOverlay = document.getElementById("order-modal-overlay");
+const orderModalClose = document.getElementById("order-modal-close");
+const orderForm = document.getElementById("order-form");
+
+let isTeamOrder = false;
+
+function openOrderModal(type) {
+  isTeamOrder = type === "team";
+  if (orderModal) {
+    orderModal.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+}
+
+function closeOrderModal() {
+  if (orderModal) {
+    orderModal.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+}
+
+function buildOrderMessage(data) {
+  const qty = parseInt(data.qty) || 1;
+  const isTeam = qty >= 10 || isTeamOrder;
+  const price = isTeam ? qty * 3900 : calculatePrice();
+  const priceFormatted = price.toLocaleString("ru-RU");
+  const header = isTeam ? "🏆 КОМАНДНЫЙ ЗАКАЗ RST61" : "Заказ RST61";
+
+  const lines = [
+    header,
+    `Имя: ${data.name}`,
+    `Телефон: ${data.phone}`,
+    `Размер: ${data.size || "не указан"}`,
+    `Количество: ${qty} шт`,
+    data.contact ? `Связь: ${data.contact}` : null,
+    "КОНФИГУРАЦИЯ:",
+    `Торс: ${partColorState.torso}`,
+    `Рукава: ${partColorState.sleeves}`,
+    `Цена: ${priceFormatted} ₽`,
+    data.comment ? `Комментарий: ${data.comment}` : null,
+  ].filter(Boolean);
+
+  return lines.join("\n");
+}
+
+function setupOrderModal() {
+  document.querySelectorAll(".open-order-modal").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      openOrderModal(btn.dataset.orderType);
+    });
+  });
+
+  orderModalClose?.addEventListener("click", closeOrderModal);
+  orderModalOverlay?.addEventListener("click", closeOrderModal);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeOrderModal();
+  });
+
+  orderForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const fd = new FormData(orderForm);
+    const data = Object.fromEntries(fd.entries());
+
+    if (!data.name.trim() || !data.phone.trim()) {
+      alert("Пожалуйста, заполните имя и телефон.");
+      return;
+    }
+
+    const msg = buildOrderMessage(data);
+    window.open("https://t.me/squizzyk?text=" + encodeURIComponent(msg), "_blank");
+    closeOrderModal();
+    orderForm.reset();
+  });
+}
+
 // Блок 43: Инициализация приложения.
 function initApp() {
   setupNavigation();
@@ -1169,6 +1136,7 @@ function initApp() {
   initThreeScene();
   initIroPicker();
   setupConfiguratorEvents();
+  setupOrderModal();
 
   setActiveByData(modelButtons, "model", currentModelType);
   setActiveByData(viewButtons, "view", currentViewMode);

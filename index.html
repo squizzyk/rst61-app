@@ -36,7 +36,6 @@
     <nav class="site-nav" aria-label="Навигация по разделам RST61">
       <button class="nav-btn active" data-target="page-home" type="button">ГЛАВНАЯ</button>
       <button class="nav-btn" data-target="page-config" type="button">КОНСТРУКТОР</button>
-      <button class="nav-btn" data-target="page-gallery" type="button">ГАЛЕРЕЯ</button>
       <button class="nav-btn" data-target="page-contacts" type="button">КОНТАКТЫ</button>
     </nav>
   </header>
@@ -79,6 +78,26 @@
         </div>
       </section>
 
+      <section class="home-pricing">
+        <div class="page-inner">
+          <h2>ЦЕНЫ И ЗАКАЗ</h2>
+          <div class="pricing-cards-grid">
+            <article class="pricing-card reveal">
+              <h3>РОЗНИЦА</h3>
+              <p class="pricing-card-price">4 300 <span>₽</span></p>
+              <p class="pricing-card-desc">За один рашгард с кастомизацией</p>
+              <button class="pricing-card-btn open-order-modal" data-order-type="single" type="button">ЗАКАЗАТЬ ОДИН</button>
+            </article>
+            <article class="pricing-card pricing-card--team reveal">
+              <h3>КОМАНДНЫЙ ЗАКАЗ</h3>
+              <p class="pricing-card-price">3 900 <span>₽</span></p>
+              <p class="pricing-card-desc">За единицу при заказе от 10&nbsp;шт</p>
+              <button class="pricing-card-btn open-order-modal" data-order-type="team" type="button">ЗАКАЗАТЬ КОМАНДОЙ</button>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section class="home-final-cta">
         <div class="page-inner">
           <button class="cta-btn reveal" data-target-page="page-config" type="button">СТАНЬ ДИЗАЙНЕРОМ СВОЕЙ ПОБЕДЫ</button>
@@ -94,31 +113,12 @@
               <div class="loading-spinner"></div>
               <p data-loading-text>ЗАГРУЗКА 3D СЦЕНЫ...</p>
             </div>
-            <div id="text-overlay" class="text-overlay">
-              <span id="text-overlay-content"></span>
-            </div>
           </div>
         </div>
 
         <aside class="controls-panel">
           <h2>ПАНЕЛЬ КОНФИГУРАЦИИ</h2>
           <p class="control-note">ЛКМ — вращение, ПКМ — панорамирование, колесо — зум.</p>
-
-          <section class="control-group" style="display:none">
-            <h3>МОДЕЛЬ РАШГАРДА</h3>
-            <div class="control-grid control-grid--2">
-              <button class="model-btn active" data-model="long" type="button">ДЛИННЫЙ РУКАВ</button>
-              <button class="model-btn" data-model="short" type="button">КОРОТКИЙ РУКАВ</button>
-            </div>
-          </section>
-
-          <section class="control-group" style="display:none">
-            <h3>РЕЖИМ ПРОСМОТРА</h3>
-            <div class="control-grid control-grid--2">
-              <button class="view-btn active" data-view="gear" type="button">ТОЛЬКО ЭКИП</button>
-              <button class="view-btn" data-view="human" type="button">НА МАНЕКЕНЕ</button>
-            </div>
-          </section>
 
           <section class="control-group">
             <h3>ОКРАШИВАЕМАЯ ЗОНА</h3>
@@ -147,32 +147,12 @@
             <p class="color-readout">ВЫБРАН ЦВЕТ: <span id="color-value">#FF4500</span></p>
           </section>
 
-          <section class="control-group">
-            <h3>НАДПИСЬ НА СПИНЕ</h3>
-            <input type="text" id="rashguard-text-input" class="text-input" placeholder="Ваше имя или ник" maxlength="16">
-            <div class="control-grid control-grid--3" style="margin-top:10px">
-              <button class="font-btn active" data-font="Impact" type="button">MILITARY</button>
-              <button class="font-btn" data-font="Oswald" type="button">BOLD</button>
-              <button class="font-btn" data-font="Georgia" type="button">CLASSIC</button>
-            </div>
-            <div class="text-color-row" style="margin-top:10px">
-              <button class="text-color-btn active" data-text-color="#FFFFFF" style="background:#FFFFFF" title="Белый"></button>
-              <button class="text-color-btn" data-text-color="#111111" style="background:#111111" title="Черный"></button>
-              <button class="text-color-btn" data-text-color="#FF4500" style="background:#FF4500" title="Оранжевый"></button>
-              <button class="text-color-btn" data-text-color="#C41E3A" style="background:#C41E3A" title="Красный"></button>
-            </div>
-            <div class="control-grid control-grid--2" style="margin-top:10px">
-              <button class="case-btn active" data-case="upper" type="button">ЗАГЛАВНЫЕ</button>
-              <button class="case-btn" data-case="normal" type="button">Как ввели</button>
-            </div>
-            <button class="clear-text-btn" id="clear-text-btn" type="button" style="margin-top:10px;width:100%">ОЧИСТИТЬ</button>
-          </section>
-
           <section class="control-group pricing-group">
             <h3>СТОИМОСТЬ</h3>
             <div class="price-display">
-              <span class="price-value" id="price-value">4 500 ₽</span>
+              <span class="price-value" id="price-value">4 300 ₽</span>
               <p class="price-note">Базовая цена. Кастомизация увеличивает стоимость.</p>
+              <p class="price-note-bulk">От 10&nbsp;шт — 3&nbsp;900&nbsp;₽ за единицу</p>
             </div>
           </section>
 
@@ -183,6 +163,7 @@
               <button class="rotation-btn active" id="btn-rotate-stop" type="button">СТОП</button>
             </div>
           </section>
+          <p class="team-contact-hint">Командные заказы: <a href="https://t.me/squizzyk" target="_blank" rel="noopener">@squizzyk</a></p>
         </aside>
       </div>
     </section>
@@ -212,6 +193,44 @@
       </div>
     </section>
   </main>
+
+  <!-- Модальное окно формы заказа -->
+  <div id="order-modal" class="order-modal">
+    <div class="order-modal-overlay" id="order-modal-overlay"></div>
+    <div class="order-modal-dialog">
+      <button class="order-modal-close" id="order-modal-close" type="button">✕</button>
+      <h2>ЗАКАЗАТЬ РАШГАРД</h2>
+      <form id="order-form" novalidate>
+        <div class="order-form-field">
+          <input type="text" id="order-name" name="name" placeholder="Имя *" required autocomplete="name">
+        </div>
+        <div class="order-form-field">
+          <input type="tel" id="order-phone" name="phone" placeholder="+7 ___ ___ __ __" required autocomplete="tel">
+        </div>
+        <div class="order-form-field">
+          <select id="order-size" name="size">
+            <option value="">Выберите размер</option>
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+          </select>
+        </div>
+        <div class="order-form-field">
+          <input type="number" id="order-qty" name="qty" min="1" value="1" placeholder="Количество">
+        </div>
+        <div class="order-form-field">
+          <input type="text" id="order-contact" name="contact" placeholder="Telegram или WhatsApp (необязательно)">
+        </div>
+        <div class="order-form-field">
+          <textarea id="order-comment" name="comment" placeholder="Особые пожелания, логотип команды и т.д." rows="3"></textarea>
+        </div>
+        <button type="submit" class="order-submit-btn">ОТПРАВИТЬ В TELEGRAM</button>
+      </form>
+    </div>
+  </div>
 
   <!-- Подключение библиотеки iro.js для профессионального Color Wheel -->
   <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
