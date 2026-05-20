@@ -1077,7 +1077,7 @@ function closeOrderModal() {
 function buildOrderMessage(data) {
   const qty = parseInt(data.qty) || 1;
   const isTeam = qty >= 10 || isTeamOrder;
-  const price = isTeam ? qty * 3900 : calculatePrice();
+  const price = isTeam ? qty * 3900 : qty * calculatePrice();
   const priceFormatted = price.toLocaleString("ru-RU");
   const header = isTeam ? "🏆 КОМАНДНЫЙ ЗАКАЗ RST61" : "Заказ RST61";
 
